@@ -124,7 +124,6 @@ def esc(s: str) -> str:
 
 
 def build_ics(days: dict) -> str:
-    now = ics_utc(dt.datetime.now(UTC))
     lines = ["BEGIN:VCALENDAR", "VERSION:2.0",
              "PRODID:-//Salahadeen Masjid Prayer Times//EN",
              "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
@@ -152,7 +151,7 @@ def build_ics(days: dict) -> str:
             desc = f"Begins {info['begin']}, Iqamah {info['iqamah']}. Source: salahadeenmosque.org.uk"
             lines += ["BEGIN:VEVENT",
                       f"UID:{day_s}-{p}@salahadeen-masjid-feed",
-                      f"DTSTAMP:{now}",
+                      f"DTSTAMP:{ics_utc(to_dt(day, '00:00'))}",   # fixed per day, so unchanged runs produce identical files
                       f"DTSTART:{ics_utc(B)}",
                       f"DTEND:{ics_utc(B + EVENT_LENGTH)}",
                       f"SUMMARY:{esc(summary)}",
