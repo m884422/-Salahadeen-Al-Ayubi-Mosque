@@ -6,7 +6,7 @@ Salahadeen Al-Ayubi Masjid: today's Begins + Iqamah times from the homepage
 Each run:
   1. Fetches https://salahadeenmosque.org.uk/ and reads the "Prayer Times" table
      (table.dptTimetable) - the date in its title and the Begins / Iqamah columns.
-  2. Stores that day in data/times.json (history is kept, 30 days).
+  2. Keeps only that active day in data/times.json (older days are removed).
   3. Writes docs/prayer.ics with reminders:
        - an alarm at Begins
        - an alarm at Iqamah minus 10 min
@@ -169,15 +169,10 @@ def build_ics(days: dict) -> str:
 
 
 def main():
-    today_local = dt.datetime.now(TZ).date()
-    days = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
-
+    # Keep only the active day shown on the homepage. Older days are dropped.
     day, times = parse_homepage(fetch_homepage())
     print(f"homepage shows {day.isoformat()}: {times}")
-    days[day.isoformat()] = times
-
-    cutoff = (today_local - dt.timedelta(days=30)).isoformat()
-    days = {d: v for d, v in days.items() if d >= cutoff}
+    days = {day.isoformat(): times}
 
     DATA_FILE.parent.mkdir(exist_ok=True)
     ICS_FILE.parent.mkdir(exist_ok=True)
